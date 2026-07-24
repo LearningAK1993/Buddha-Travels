@@ -211,7 +211,7 @@ else:
         followups = st.number_input("No. of Follow-Ups / Callbacks for This Enquiry", min_value=0, step=1)
 
         coordinated = st.radio("Coordinated with a Teammate?", ["Yes", "No"], horizontal=True)
-        teammate_name = st.text_input("Teammate Name (if Yes)")
+        teammate_name = st.selectbox("Teammate Name (if Yes)", STAFF_NAMES)
 
         outcome = st.selectbox("Outcome", OUTCOMES)
         reason = st.selectbox("Reason if Not Converted", REASONS)
