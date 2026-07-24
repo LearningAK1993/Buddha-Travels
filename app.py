@@ -55,7 +55,7 @@ ENQUIRY_LOG_HEADERS = [
     "Submitted At",
 ]
 
-STAFF_NAMES = ["Please select", "Kabita SYD", "Shreekantha KTM", "Prasant KTM", "Bishnu NP", "Nisha NP", "Bal Gopal MEL", "Prazol MEL", "Ram Hari NP", "Sabin NP", "Krishna SYD", "Srijana NP", "Uttam NP", "Mahendra NZ"]
+STAFF_NAMES = ["Please Select", "Kabita SYD", "Shreekantha KTM", "Prasant KTM", "Bishnu NP", "Nisha NP", "Bal Gopal MEL", "Prazol MEL", "Ram Hari NP", "Sabin NP", "Krishna SYD", "Srijana NP", "Uttam NP", "Mahendra NZ"]
 COMMS_METHODS = ["WhatsApp", "SMS/Text", "Viber", "Phone Call", "Email"]
 CHANNELS = ["Website Form", "Live Chat", "Facebook", "Instagram", "Phone", "Walk-in", "Referral", "Other"]
 OUTCOMES = ["Quoted", "Booked (PNR generated)", "Lost", "Pending", "No Response"]
@@ -122,7 +122,7 @@ st.markdown(
 
 entry_type = st.radio(
     "What are you submitting today?",
-    ["Daily Summary", "New Enquiry Entry"],
+    ["Daily Summary", "Enquiry Log"],
     horizontal=True,
 )
 
