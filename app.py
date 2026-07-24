@@ -54,7 +54,7 @@ ENQUIRY_LOG_HEADERS = [
     "Submitted At",
 ]
 
-STAFF_NAMES = ["Please select", "Staff 1", "Staff 2", "Staff 3", "Staff 4", "Add name in code"]
+STAFF_NAMES = ["Please Select", "Kabita SYD", "Shreekantha KTM", "Prasant KTM", "Bishnu NP", "Nisha NP", "Bal Gopal MEL", "Prazol MEL", "Ram Hari NP", "Sabin NP", "Krishna SYD", "Srijana NP", "Uttam NP", "Mahendra NZ"]
 COMMS_METHODS = ["WhatsApp", "SMS/Text", "Viber", "Phone Call", "Email"]
 CHANNELS = ["Website Form", "Live Chat", "Facebook", "Instagram", "Phone", "Walk-in", "Referral", "Other"]
 OUTCOMES = ["Quoted", "Booked (PNR generated)", "Lost", "Pending", "No Response"]
@@ -110,7 +110,7 @@ st.markdown(
 
 entry_type = st.radio(
     "What are you submitting today?",
-    ["Daily Summary", "New Enquiry Entry"],
+    ["Daily Summary", "Enquiry Log"],
     horizontal=True,
 )
 
@@ -179,7 +179,7 @@ if entry_type == "Daily Summary":
 # ---------------------------------------------------------------------------
 else:
     with st.form("enquiry_log_form", clear_on_submit=True):
-        st.subheader("New Enquiry Entry")
+        st.subheader("Enquiry Entry")
 
         col1, col2 = st.columns(2)
         with col1:
@@ -199,7 +199,7 @@ else:
         followups = st.number_input("No. of Follow-Ups / Callbacks for This Enquiry", min_value=0, step=1)
 
         coordinated = st.radio("Coordinated with a Teammate?", ["Yes", "No"], horizontal=True)
-        teammate_name = st.text_input("Teammate Name (if Yes)")
+        teammate_name = st.selectbox("Teammate Name (if Yes)", STAFF_NAMES)
 
         outcome = st.selectbox("Outcome", OUTCOMES)
         reason = st.selectbox("Reason if Not Converted", REASONS)
