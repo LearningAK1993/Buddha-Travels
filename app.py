@@ -250,15 +250,24 @@ else:
                     st.error(err)
 
 # ---------------------------------------------------------------------------
-# ADMIN: DOWNLOAD CURRENT FILE
+# ADMIN: DOWNLOAD CURRENT FILE (password protected)
 # ---------------------------------------------------------------------------
 st.divider()
 with st.expander("Manager access: download current Excel file"):
-    ensure_workbook_exists()
-    with open(EXCEL_PATH, "rb") as f:
-        st.download_button(
-            label="Download sales_activity_log.xlsx",
-            data=f,
-            file_name="sales_activity_log.xlsx",
-            mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-        )
+    manager_password = st.text_input("Enter manager password", type="password")
+
+    if manager_password:
+        correct_password = st.secrets.get("manager_password", None)
+        if correct_password is None:
+            st.error("No manager password has been set up yet. Add one in Streamlit Cloud → Settings → Secrets.")
+        elif manager_password == correct_password:
+            ensure_workbook_exists()
+            with open(EXCEL_PATH, "rb") as f:
+                st.download_button(
+                    label="Download sales_activity_log.xlsx",
+                    data=f,
+                    file_name="sales_activity_log.xlsx",
+                    mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+                )
+        else:
+            st.error("Incorrect password.")
