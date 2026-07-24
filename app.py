@@ -1,22 +1,21 @@
 """
 Buddha Travel and Tours — Sales Activity Log
 A simple Streamlit form for staff to log Daily Summary and Enquiry entries.
-Both write into a single Excel file (two sheets), safely handling multiple
-staff submitting at the same time using a file lock.
+Both are sent to a Google Apps Script Web App endpoint, which appends them
+as rows into a Google Sheet (Daily Summary / Enquiry Log tabs). This means
+data persists permanently in the Sheet, with no reset risk from Streamlit's
+free-tier storage.
 """
 
 import streamlit as st
-import openpyxl
-from openpyxl import Workbook
-from filelock import FileLock, Timeout
+import requests
 from datetime import date, datetime
-import os
 
 # ---------------------------------------------------------------------------
 # CONFIG
 # ---------------------------------------------------------------------------
-EXCEL_PATH = "sales_activity_log.xlsx"
-LOCK_PATH = EXCEL_PATH + ".lock"
+# Your Apps Script Web App URL (from Deploy > New deployment > Web app)
+APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyU67VAnI40-kERKwLHLhw-dcoX6QIe03G9cqvHDN_UtCF6bRe_FkgfWzyG0zM3ttMZ/exec"
 
 DAILY_SUMMARY_HEADERS = [
     "Date",
@@ -70,37 +69,26 @@ REASONS = [
 ]
 
 # ---------------------------------------------------------------------------
-# EXCEL HELPERS
+# APPS SCRIPT HELPER
 # ---------------------------------------------------------------------------
 
-def ensure_workbook_exists():
-    """Create the workbook with both sheets and headers if it doesn't exist yet."""
-    if not os.path.exists(EXCEL_PATH):
-        wb = Workbook()
-        ws1 = wb.active
-        ws1.title = "Daily Summary"
-        ws1.append(DAILY_SUMMARY_HEADERS)
-        ws2 = wb.create_sheet("Enquiry Log")
-        ws2.append(ENQUIRY_LOG_HEADERS)
-        wb.save(EXCEL_PATH)
-
-
-def append_row(sheet_name: str, row_values: list):
-    """Safely append a row to the given sheet, using a file lock to avoid
-    collisions if two staff submit at nearly the same moment."""
-    lock = FileLock(LOCK_PATH, timeout=10)
+def send_row(sheet_name: str, row_values: list):
+    """Send one row to the Google Sheet via the Apps Script Web App endpoint."""
     try:
-        with lock:
-            ensure_workbook_exists()
-            wb = openpyxl.load_workbook(EXCEL_PATH)
-            ws = wb[sheet_name]
-            ws.append(row_values)
-            wb.save(EXCEL_PATH)
-        return True, None
-    except Timeout:
-        return False, "The file was busy — please try submitting again in a few seconds."
+        response = requests.post(
+            APPS_SCRIPT_URL,
+            json={"sheet": sheet_name, "row": row_values},
+            timeout=15,
+        )
+        result = response.json()
+        if result.get("success"):
+            return True, None
+        else:
+            return False, result.get("error", "Unknown error from Apps Script.")
+    except requests.exceptions.Timeout:
+        return False, "The request timed out — please check your connection and try again."
     except Exception as e:
-        return False, f"Something went wrong saving your entry: {e}"
+        return False, f"Something went wrong sending your entry: {e}"
 
 
 # ---------------------------------------------------------------------------
@@ -180,7 +168,7 @@ if entry_type == "Daily Summary":
                     services_promoted,
                     datetime.now().strftime("%d/%m/%Y %H:%M:%S"),
                 ]
-                ok, err = append_row("Daily Summary", row)
+                ok, err = send_row("Daily Summary", row)
                 if ok:
                     st.success("Daily Summary submitted. Thank you!")
                 else:
@@ -243,31 +231,29 @@ else:
                     notes,
                     datetime.now().strftime("%d/%m/%Y %H:%M:%S"),
                 ]
-                ok, err = append_row("Enquiry Log", row)
+                ok, err = send_row("Enquiry Log", row)
                 if ok:
                     st.success("Enquiry entry submitted. Thank you!")
                 else:
                     st.error(err)
 
 # ---------------------------------------------------------------------------
-# ADMIN: DOWNLOAD CURRENT FILE (password protected)
+# ADMIN: LINK TO GOOGLE SHEET (password protected)
 # ---------------------------------------------------------------------------
 st.divider()
-with st.expander("Manager access: download current Excel file"):
+with st.expander("Manager access: view the Google Sheet"):
     manager_password = st.text_input("Enter manager password", type="password")
 
     if manager_password:
         correct_password = st.secrets.get("manager_password", None)
+        sheet_url = st.secrets.get("sheet_url", None)
         if correct_password is None:
             st.error("No manager password has been set up yet. Add one in Streamlit Cloud → Settings → Secrets.")
         elif manager_password == correct_password:
-            ensure_workbook_exists()
-            with open(EXCEL_PATH, "rb") as f:
-                st.download_button(
-                    label="Download sales_activity_log.xlsx",
-                    data=f,
-                    file_name="sales_activity_log.xlsx",
-                    mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-                )
+            if sheet_url:
+                st.success("Access confirmed.")
+                st.link_button("Open Google Sheet", sheet_url)
+            else:
+                st.error("No sheet_url has been set up yet. Add it in Streamlit Cloud → Settings → Secrets.")
         else:
             st.error("Incorrect password.")
