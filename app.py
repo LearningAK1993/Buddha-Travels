@@ -191,7 +191,7 @@ if entry_type == "Daily Summary":
 # ---------------------------------------------------------------------------
 else:
     with st.form("enquiry_log_form", clear_on_submit=True):
-        st.subheader("New Enquiry Entry")
+        st.subheader("Enquiry Entry")
 
         col1, col2 = st.columns(2)
         with col1:
