@@ -179,7 +179,7 @@ st.markdown(
                 box-shadow:0 1px 2px rgba(16,24,40,0.04), 0 4px 12px rgba(16,24,40,0.03);">
         {_logo_html}
         <div>
-            <h2 style="color:#1f2937; margin:0; font-size:2.35rem; font-weight:700;">Buddha Travel and Tours</h2>
+            <h2 style="color:#1f2937; margin:0; font-size:1.35rem; font-weight:700;">Buddha Travel and Tours</h2>
             <p style="color:#6b7280; margin:4px 0 0 0; font-size:0.9rem;">Sales Activity Log</p>
         </div>
     </div>
