@@ -109,50 +109,78 @@ def _logo_data_uri():
 
 st.set_page_config(page_title="Buddha Travel — Sales Activity Log", page_icon="🌍", layout="centered")
 
-# Brand styling: buttons and tabs in Buddha Travel's blue/green palette
+# Brand styling — thin borders, soft layered shadows, generous spacing.
+# Colors mostly come from .streamlit/config.toml so buttons, focus rings,
+# radios and the selected tab all share one accent automatically.
 st.markdown(
     """
     <style>
+    .block-container {
+        max-width: 960px;
+        padding-top: 2.5rem;
+    }
     div.stButton > button, .stFormSubmitButton > button {
-        background-color: #1a7db3;
-        color: white;
-        border: none;
         border-radius: 8px;
-        padding: 0.5rem 1.75rem;
+        padding: 0.55rem 1.75rem;
         font-weight: 600;
+        border: 1px solid transparent;
+        transition: filter 0.15s ease, box-shadow 0.15s ease;
     }
     div.stButton > button:hover, .stFormSubmitButton > button:hover {
-        background-color: #145f88;
-        color: white;
+        filter: brightness(0.94);
     }
+    div.stButton > button:focus-visible, .stFormSubmitButton > button:focus-visible {
+        outline: 2px solid #1a7db3;
+        outline-offset: 2px;
+    }
+    div.stButton > button:disabled, .stFormSubmitButton > button:disabled {
+        filter: grayscale(0.4) opacity(0.6);
+    }
+
+    [data-testid="stForm"] {
+        border: 1px solid #e5e9ed;
+        border-radius: 12px;
+        padding: 1.75rem 1.75rem 1.25rem;
+        box-shadow: 0 1px 2px rgba(16, 24, 40, 0.04);
+    }
+
+    [data-testid="stExpander"] {
+        border: 1px solid #e5e9ed;
+        border-radius: 10px;
+    }
+
     .stTabs [data-baseweb="tab-list"] {
-        gap: 8px;
+        gap: 4px;
+        border-bottom: 1px solid #e5e9ed;
     }
     .stTabs [data-baseweb="tab"] {
-        border-radius: 8px 8px 0 0;
-        padding: 8px 16px;
+        padding: 10px 18px;
+        color: #6b7280;
     }
     .stTabs [aria-selected="true"] {
-        background-color: #eaf6ff;
-        border-bottom: 3px solid #1a7db3;
+        border-bottom: 2px solid #1a7db3;
+        font-weight: 600;
+        color: #1a7db3 !important;
     }
     </style>
     """,
     unsafe_allow_html=True,
 )
 
-# Branded header with logo
+# Branded header — asymmetric layout with a functional accent bar rather
+# than a centered, symmetric block.
 _logo_uri = _logo_data_uri()
-_logo_html = f'<img src="{_logo_uri}" style="height:52px; margin-right:18px;" />' if _logo_uri else ""
+_logo_html = f'<img src="{_logo_uri}" style="height:48px; margin-right:20px;" />' if _logo_uri else ""
 st.markdown(
     f"""
-    <div style="display:flex; align-items:center; background:linear-gradient(135deg, #ffffff 0%, #eaf6ff 100%);
-                padding:18px 24px; border-radius:12px; margin-bottom:24px; border:1px solid #d9ecf7;
-                box-shadow:0 2px 8px rgba(0,0,0,0.06);">
+    <div style="display:flex; align-items:center; background:#f6f8fa;
+                padding:28px 32px; border-radius:10px; margin-bottom:32px;
+                border:1px solid #e5e9ed; border-left:4px solid #1a7db3;
+                box-shadow:0 1px 2px rgba(16,24,40,0.04), 0 4px 12px rgba(16,24,40,0.03);">
         {_logo_html}
         <div>
-            <h2 style="color:#1a7db3; margin:0; font-size:1.4rem;">Buddha Travel and Tours</h2>
-            <p style="color:#6e6259; margin:2px 0 0 0; font-size:0.95rem;">Sales Activity Log</p>
+            <h2 style="color:#1f2937; margin:0; font-size:1.35rem; font-weight:700;">Buddha Travel and Tours</h2>
+            <p style="color:#6b7280; margin:4px 0 0 0; font-size:0.9rem;">Sales Activity Log</p>
         </div>
     </div>
     """,
@@ -172,23 +200,34 @@ with tab1:
         with col2:
             staff_name = st.selectbox("Staff Name", STAFF_NAMES)
 
-        pnrs = st.number_input("PNRs Generated Today", min_value=0, step=1)
-        calls = st.number_input("Total Calls Received Today", min_value=0, step=1)
-        emails = st.number_input("Total Emails Sent to Clients Today", min_value=0, step=1)
-        enquiries_logged = st.number_input("Total Enquiries Received & Logged in Zooma Today", min_value=0, step=1)
-        callbacks = st.number_input("Total Callbacks Made Today (across all enquiries)", min_value=0, step=1)
+        num_col1, num_col2, num_col3 = st.columns(3)
+        with num_col1:
+            pnrs = st.number_input("PNRs Generated Today", min_value=0, step=1)
+        with num_col2:
+            calls = st.number_input("Total Calls Received Today", min_value=0, step=1)
+        with num_col3:
+            emails = st.number_input("Total Emails Sent to Clients Today", min_value=0, step=1)
+
+        num_col4, num_col5 = st.columns(2)
+        with num_col4:
+            enquiries_logged = st.number_input("Total Enquiries Received & Logged in Zooma Today", min_value=0, step=1)
+        with num_col5:
+            callbacks = st.number_input("Total Callbacks Made Today (across all enquiries)", min_value=0, step=1)
 
         tasks = st.text_area("Daily Tasks Planned / Noted for Today")
         price_tips = st.text_area("Tips/Tricks Applied for Price-Matching Objections (optional)")
 
-        mgmt_tips_applied = st.radio("Management Briefing Tips Applied Today?", ["Yes", "No"], horizontal=True)
-        mgmt_tips_detail = st.text_area("If Yes — Which Tips Applied (optional)")
+        tips_col, comms_col = st.columns(2)
+        with tips_col:
+            mgmt_tips_applied = st.radio("Management Briefing Tips Applied Today?", ["Yes", "No"], horizontal=True)
+        with comms_col:
+            comms_pref = st.selectbox("Preferred Communication Method", COMMS_METHODS)
 
-        comms_pref = st.selectbox("Preferred Communication Method", COMMS_METHODS)
+        mgmt_tips_detail = st.text_area("If Yes — Which Tips Applied (optional)")
         feedback = st.text_area("Client Feedback Received Today (if any)")
         services_promoted = st.text_area("Services/Products Promoted Today")
 
-        submitted = st.form_submit_button("Submit Daily Summary")
+        submitted = st.form_submit_button("Submit Daily Summary", type="primary")
 
         if submitted:
             if staff_name == "Please Select":
@@ -228,25 +267,39 @@ with tab2:
         with col2:
             staff_name = st.selectbox("Staff Name", STAFF_NAMES)
 
-        ref_id = st.text_input("Enquiry / Zooma Ref ID")
-        client_name = st.text_input("Client Name")
-        date_received = st.date_input("Date Enquiry Originally Received", value=date.today())
-        channel = st.selectbox("Enquiry Source / Channel", CHANNELS)
+        ref_col, client_col = st.columns(2)
+        with ref_col:
+            ref_id = st.text_input("Enquiry / Zooma Ref ID")
+        with client_col:
+            client_name = st.text_input("Client Name")
+
+        recv_col, channel_col = st.columns(2)
+        with recv_col:
+            date_received = st.date_input("Date Enquiry Originally Received", value=date.today())
+        with channel_col:
+            channel = st.selectbox("Enquiry Source / Channel", CHANNELS)
 
         price_offered = st.radio("Price/Options Offered?", ["Yes", "No"], horizontal=True)
         price_details = st.text_area("Price/Options Offered — Details (if Yes)")
 
-        comms_used = st.selectbox("Communication Method Used", COMMS_METHODS)
-        followups = st.number_input("No. of Follow-Ups / Callbacks for This Enquiry", min_value=0, step=1)
+        comms_col, followups_col = st.columns(2)
+        with comms_col:
+            comms_used = st.selectbox("Communication Method Used", COMMS_METHODS)
+        with followups_col:
+            followups = st.number_input("No. of Follow-Ups / Callbacks for This Enquiry", min_value=0, step=1)
 
         coordinated = st.radio("Coordinated with a Teammate?", ["Yes", "No"], horizontal=True)
         teammate_name = st.selectbox("Teammate Name (if Yes)", STAFF_NAMES)
 
-        outcome = st.selectbox("Outcome", OUTCOMES)
-        reason = st.selectbox("Reason if Not Converted", REASONS)
+        outcome_col, reason_col = st.columns(2)
+        with outcome_col:
+            outcome = st.selectbox("Outcome", OUTCOMES)
+        with reason_col:
+            reason = st.selectbox("Reason if Not Converted", REASONS)
+
         notes = st.text_area("Notes")
 
-        submitted = st.form_submit_button("Submit Enquiry Entry")
+        submitted = st.form_submit_button("Submit Enquiry Entry", type="primary")
 
         if submitted:
             if staff_name == "Please Select":
