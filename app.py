@@ -173,7 +173,7 @@ _logo_uri = _logo_data_uri()
 _logo_html = f'<img src="{_logo_uri}" style="height:48px; margin-right:20px;" />' if _logo_uri else ""
 st.markdown(
     f"""
-    <div style="display:flex; align-items:center; background:#f6f8fa;
+    <div style="display:flex; align-items:center; background:##FFFFFF;
                 padding:28px 32px; border-radius:10px; margin-bottom:32px;
                 border:1px solid #e5e9ed; border-left:4px solid #1a7db3;
                 box-shadow:0 1px 2px rgba(16,24,40,0.04), 0 4px 12px rgba(16,24,40,0.03);">
