@@ -9,6 +9,8 @@ free-tier storage.
 
 import streamlit as st
 import requests
+import base64
+from pathlib import Path
 from datetime import date, datetime
 
 # ---------------------------------------------------------------------------
@@ -95,34 +97,75 @@ def send_row(sheet_name: str, row_values: list):
 # STREAMLIT UI
 # ---------------------------------------------------------------------------
 
-st.set_page_config(page_title="Buddha Travel — Sales Activity Log", page_icon="✈️", layout="centered")
+LOGO_PATH = Path(__file__).parent / "assets" / "logo.jpg"
 
-# Simple brand-colour header
+
+def _logo_data_uri():
+    if LOGO_PATH.exists():
+        encoded = base64.b64encode(LOGO_PATH.read_bytes()).decode()
+        return f"data:image/jpeg;base64,{encoded}"
+    return None
+
+
+st.set_page_config(page_title="Buddha Travel — Sales Activity Log", page_icon="🌍", layout="centered")
+
+# Brand styling: buttons and tabs in Buddha Travel's blue/green palette
 st.markdown(
     """
-    <div style="background-color:#0093d9; padding:16px 20px; border-radius:8px; margin-bottom:20px;">
-        <h2 style="color:white; margin:0;">Buddha Travel and Tours</h2>
-        <p style="color:#eaf6ff; margin:4px 0 0 0;">Sales Activity Log</p>
+    <style>
+    div.stButton > button, .stFormSubmitButton > button {
+        background-color: #1a7db3;
+        color: white;
+        border: none;
+        border-radius: 8px;
+        padding: 0.5rem 1.75rem;
+        font-weight: 600;
+    }
+    div.stButton > button:hover, .stFormSubmitButton > button:hover {
+        background-color: #145f88;
+        color: white;
+    }
+    .stTabs [data-baseweb="tab-list"] {
+        gap: 8px;
+    }
+    .stTabs [data-baseweb="tab"] {
+        border-radius: 8px 8px 0 0;
+        padding: 8px 16px;
+    }
+    .stTabs [aria-selected="true"] {
+        background-color: #eaf6ff;
+        border-bottom: 3px solid #1a7db3;
+    }
+    </style>
+    """,
+    unsafe_allow_html=True,
+)
+
+# Branded header with logo
+_logo_uri = _logo_data_uri()
+_logo_html = f'<img src="{_logo_uri}" style="height:52px; margin-right:18px;" />' if _logo_uri else ""
+st.markdown(
+    f"""
+    <div style="display:flex; align-items:center; background:linear-gradient(135deg, #ffffff 0%, #eaf6ff 100%);
+                padding:18px 24px; border-radius:12px; margin-bottom:24px; border:1px solid #d9ecf7;
+                box-shadow:0 2px 8px rgba(0,0,0,0.06);">
+        {_logo_html}
+        <div>
+            <h2 style="color:#1a7db3; margin:0; font-size:1.4rem;">Buddha Travel and Tours</h2>
+            <p style="color:#6e6259; margin:2px 0 0 0; font-size:0.95rem;">Sales Activity Log</p>
+        </div>
     </div>
     """,
     unsafe_allow_html=True,
 )
 
-entry_type = st.radio(
-    "What are you submitting today?",
-    ["Daily Summary", "Enquiry Log"],
-    horizontal=True,
-)
-
-st.divider()
+tab1, tab2 = st.tabs(["🧳 Daily Summary", "✈️ Enquiry Log"])
 
 # ---------------------------------------------------------------------------
 # DAILY SUMMARY FORM
 # ---------------------------------------------------------------------------
-if entry_type == "Daily Summary":
+with tab1:
     with st.form("daily_summary_form", clear_on_submit=True):
-        st.subheader("Daily Summary")
-
         col1, col2 = st.columns(2)
         with col1:
             entry_date = st.date_input("Date", value=date.today())
@@ -177,10 +220,8 @@ if entry_type == "Daily Summary":
 # ---------------------------------------------------------------------------
 # ENQUIRY LOG FORM
 # ---------------------------------------------------------------------------
-else:
+with tab2:
     with st.form("enquiry_log_form", clear_on_submit=True):
-        st.subheader("Enquiry Entry")
-
         col1, col2 = st.columns(2)
         with col1:
             entry_date = st.date_input("Date", value=date.today())
@@ -257,3 +298,12 @@ with st.expander("Manager access: view the Google Sheet"):
                 st.error("No sheet_url has been set up yet. Add it in Streamlit Cloud → Settings → Secrets.")
         else:
             st.error("Incorrect password.")
+
+st.markdown(
+    """
+    <div style="text-align:center; color:#9a9a9a; font-size:0.8rem; margin-top:32px;">
+        Buddha Travel and Tours &mdash; Internal Sales Tool
+    </div>
+    """,
+    unsafe_allow_html=True,
+)
