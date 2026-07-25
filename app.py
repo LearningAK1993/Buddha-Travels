@@ -148,7 +148,7 @@ if entry_type == "Daily Summary":
         submitted = st.form_submit_button("Submit Daily Summary")
 
         if submitted:
-            if staff_name == "Please select":
+            if staff_name == "Please Select":
                 st.error("Please select your staff name before submitting.")
             else:
                 row = [
@@ -208,7 +208,7 @@ else:
         submitted = st.form_submit_button("Submit Enquiry Entry")
 
         if submitted:
-            if staff_name == "Please select":
+            if staff_name == "Please Select":
                 st.error("Please select your staff name before submitting.")
             elif not ref_id or not client_name:
                 st.error("Please enter both the Enquiry/Zooma Ref ID and Client Name.")
